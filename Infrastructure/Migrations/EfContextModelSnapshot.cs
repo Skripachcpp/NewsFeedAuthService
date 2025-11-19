@@ -60,7 +60,7 @@ namespace Infrastructure.Migrations
                     b.HasIndex("Username")
                         .IsUnique();
 
-                    b.ToTable("users", (string)null);
+                    b.ToTable("user_accounts", (string)null);
                 });
 #pragma warning restore 612, 618
         }

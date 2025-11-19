@@ -13,7 +13,7 @@ namespace Infrastructure.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "users",
+                name: "user_accounts",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
@@ -25,18 +25,18 @@ namespace Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_users", x => x.id);
+                    table.PrimaryKey("PK_user_accounts", x => x.id);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_users_email",
-                table: "users",
+                name: "IX_user_accounts_email",
+                table: "user_accounts",
                 column: "email",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_users_user_name",
-                table: "users",
+                name: "IX_user_accounts_user_name",
+                table: "user_accounts",
                 column: "user_name",
                 unique: true);
         }
@@ -45,7 +45,7 @@ namespace Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "users");
+                name: "user_accounts");
         }
     }
 }

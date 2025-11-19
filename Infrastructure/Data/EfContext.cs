@@ -7,7 +7,7 @@ public class EfContext(DbContextOptions<EfContext> options): DbContext(options) 
   public DbSet<User> User { get; set; }
   protected override void OnModelCreating(ModelBuilder modelBuilder) {
     modelBuilder.Entity<User>(entity => {
-      entity.ToTable("users");
+      entity.ToTable("user_accounts");
       entity.HasKey(e => e.Id);
       entity.HasIndex(e => e.Username).IsUnique();
       entity.HasIndex(e => e.Email).IsUnique();

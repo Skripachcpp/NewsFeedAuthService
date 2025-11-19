@@ -16,7 +16,7 @@ public class UserRepository(DpContext dpContext) : IUserRepository {
     // language=PostgreSQL
     var id = await dpContext.QuerySingleAsync<int>(
       @"
-      INSERT INTO users (user_name, email, password_hash, created_at) 
+      INSERT INTO user_accounts (user_name, email, password_hash, created_at) 
       VALUES (@Name, @Email, @PasswordHash, @CreatedAt)
       RETURNING id;
       ",
@@ -31,7 +31,7 @@ public class UserRepository(DpContext dpContext) : IUserRepository {
     CancellationToken cancellationToken = default) {
     // language=PostgreSQL
     var id = await dpContext.QueryFirstOrDefaultAsync<int?>(
-      @"SELECT id FROM users WHERE email = @Email and user_name = @Name",
+      @"SELECT id FROM user_accounts WHERE email = @Email and user_name = @Name",
       parameters: new { Email = name, Name = name },
       cancellationToken: cancellationToken
     );
@@ -52,7 +52,7 @@ public class UserRepository(DpContext dpContext) : IUserRepository {
           email as Email, 
           password_hash as PasswordHash,
           created_at as CreatedAt
-      FROM users 
+      FROM user_accounts 
       WHERE user_name = @Name
       ",
       parameters: new { Name = name },
