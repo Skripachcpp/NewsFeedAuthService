@@ -1,7 +1,20 @@
+using Domain;
+using Infrastructure;
+using Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// bd _
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+if (connectionString == null) throw new Exception("Отсутствует connection string");
+builder.Services.AddDbContext<EfContext>(options => options.UseNpgsql(connectionString));
+builder.Services.AddScoped<DpContext>(_ => new DpContext(connectionString));
+// bd ^
 
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+
+// Add services to the container.
 builder.Services.AddControllers();
 
 builder.Services.AddOpenApiDocument(); // swagger
