@@ -11,24 +11,23 @@ namespace Web.Controllers;
 public class AuthController(IAuthRepository authRepository) : BaseController {
   [HttpPost("register")]
   public async Task<ActionResult> Register([FromBody] RegisterRequest request, CancellationToken cancellationToken = default) {
-    var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
-    
-    var user = new UserDto {
+    var userExists = await authRepository.CheckLoginAndEmail(request.Username, request.Email, cancellationToken);
+    if (userExists) return BadRequest("Пользователь с таким логином или email уже существует");
+
+    var userId = await authRepository.AddUser(new UserAddDto {
       Email = request.Email,
       Username = request.Username,
-      CreatedAt = DateTime.Now,
-      PasswordHash = passwordHash,
-    };
-
-    var userId = await authRepository.AddUser(user, cancellationToken);
+      Password = request.Password,
+    }, cancellationToken);
+    
+    
     
     return Ok();
   }
   
   [HttpPost("login")]
   public async Task<ActionResult> Login(LoginRequest request, CancellationToken cancellationToken = default) {
-    // await authRepository.AddUser(user, cancellationToken);
-    
+    // await authRepository.GetUser(user, cancellationToken);
     return Ok();
   }
   
