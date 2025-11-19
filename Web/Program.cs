@@ -12,6 +12,14 @@ builder.Services.AddDbContext<EfContext>(options => options.UseNpgsql(connection
 builder.Services.AddScoped<DpContext>(_ => new DpContext(connectionString));
 // bd ^
 
+builder.Services.AddCors(options => {
+  options.AddDefaultPolicy(policy => {
+    policy.AllowAnyOrigin()
+      .AllowAnyMethod()
+      .AllowAnyHeader();
+  });
+});
+
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IJwtToken, JwtToken>();
 
@@ -43,6 +51,8 @@ using (var scope = app.Services.CreateScope()) {
 // свагер пусть будет и в продакшене
 app.UseOpenApi();
 app.UseSwaggerUi();
+
+app.UseCors();
 
 app.UseHttpsRedirection();
 

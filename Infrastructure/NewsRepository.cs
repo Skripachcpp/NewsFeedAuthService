@@ -8,42 +8,66 @@ using Infrastructure.Data;
 namespace Infrastructure;
 
 public class UserRepository(DpContext dpContext) : IUserRepository {
-  public async Task<int> AddUserAsync(string name, string email, string password, CancellationToken cancellationToken = default) {
+  public async Task<int> AddUserAsync(string name, string email, string password,
+    CancellationToken cancellationToken = default) {
     var createdAt = DateTime.Now;
     var passwordHash = BCrypt.Net.BCrypt.HashPassword(password);
 
     // language=PostgreSQL
     var id = await dpContext.QuerySingleAsync<int>(
       @"
-        INSERT INTO users (user_name, email, password_hash, created_at) 
-        VALUES (@Name, @Email, @PasswordHash, @CreatedAt)
-        RETURNING id;",
-      parameters: new {Name = name, Email = email, PasswordHash = passwordHash, CreatedAt = createdAt},
+      INSERT INTO users (user_name, email, password_hash, created_at) 
+      VALUES (@Name, @Email, @PasswordHash, @CreatedAt)
+      RETURNING id;
+      ",
+      parameters: new { Name = name, Email = email, PasswordHash = passwordHash, CreatedAt = createdAt },
       cancellationToken: cancellationToken
     );
 
     return id;
   }
-  
-  public async Task<bool> CheckLoginAndEmailAsync(string name, string email, CancellationToken cancellationToken = default) {
+
+  public async Task<bool> CheckLoginAndEmailAsync(string name, string email,
+    CancellationToken cancellationToken = default) {
     // language=PostgreSQL
     var id = await dpContext.QueryFirstOrDefaultAsync<int?>(
       @"SELECT id FROM users WHERE email = @Email and user_name = @Name",
-      parameters: new {Email = name, Name = name},
+      parameters: new { Email = name, Name = name },
       cancellationToken: cancellationToken
     );
 
     return id != null;
   }
 
-  public async Task<UserDto?> GetUserAsync(string name, string password, CancellationToken cancellationToken = default) {
+  public async Task<UserDto?>
+    GetUserAsync(string name, string password, CancellationToken cancellationToken = default) {
+    var passwordHash = BCrypt.Net.BCrypt.HashPassword(password);
+
     // language=PostgreSQL
-    var user = await dpContext.QueryFirstOrDefaultAsync<UserDto?>(
-      @"SELECT id as Id, user_name as Name, email as Email FROM users WHERE email = @Email and user_name = @Name",
-      parameters: new {Email = name, Name = name},
+    var user = await dpContext.QueryFirstOrDefaultAsync<User?>(
+      @"
+      SELECT 
+          id as Id, 
+          user_name as Username, 
+          email as Email, 
+          password_hash as PasswordHash,
+          created_at as CreatedAt
+      FROM users 
+      WHERE user_name = @Name
+      ",
+      parameters: new { Name = name },
       cancellationToken: cancellationToken
     );
 
-    return user;
+    if (user == null) return null;
+
+    var valid = BCrypt.Net.BCrypt.Verify(password, user.PasswordHash);
+    if (!valid) return null;
+
+    return new UserDto {
+      Id = user.Id,
+      Name = user.Username,
+      Email = user.Email,
+    };
   }
 }
