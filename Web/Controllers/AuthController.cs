@@ -8,25 +8,24 @@ namespace Web.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class AuthController(IAuthRepository authRepository) : BaseController {
+public class AuthController(IAuthRepository authRepository, IJwtToken jwtToken) : BaseController {
   [HttpPost("register")]
-  public async Task<ActionResult> Register([FromBody] RegisterRequest request, CancellationToken cancellationToken = default) {
-    var userExists = await authRepository.CheckLoginAndEmail(request.Username, request.Email, cancellationToken);
+  public async Task<ActionResult<string>> Register([FromBody] RegisterRequest request, CancellationToken cancellationToken = default) {
+    var email = request.Email;
+    var name = request.Username;
+    var password = request.Password;
+    
+    var userExists = await authRepository.CheckLoginAndEmail(name, email, cancellationToken);
     if (userExists) return BadRequest("Пользователь с таким логином или email уже существует");
 
-    var userId = await authRepository.AddUser(new UserAddDto {
-      Email = request.Email,
-      Username = request.Username,
-      Password = request.Password,
-    }, cancellationToken);
+    var id = await authRepository.AddUser(name, email, password, cancellationToken);
+    var token = jwtToken.Generate(id, name, email);
     
-    
-    
-    return Ok();
+    return OkResult(token);
   }
   
   [HttpPost("login")]
-  public async Task<ActionResult> Login(LoginRequest request, CancellationToken cancellationToken = default) {
+  public async Task<ActionResult<string>> Login(LoginRequest request, CancellationToken cancellationToken = default) {
     // await authRepository.GetUser(user, cancellationToken);
     return Ok();
   }

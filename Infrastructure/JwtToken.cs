@@ -1,0 +1,35 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Domain;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+
+namespace Infrastructure;
+
+public class JwtToken(IConfiguration configuration): IJwtToken {
+  public string Generate(int id, string name, string email) {
+    var jwtSettings = configuration.GetSection("JwtSettings");
+    var secretKey = jwtSettings["SecretKey"]!;
+    var expirationMinutes = int.Parse(jwtSettings["ExpirationMinutes"] ?? "60");
+  
+    var claims = new[] {
+      new Claim(ClaimTypes.NameIdentifier, id.ToString()),
+      new Claim(ClaimTypes.Name, name),
+      new Claim(ClaimTypes.Email, email)
+    };
+  
+    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+    var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+  
+    var token = new JwtSecurityToken(
+      issuer: jwtSettings["Issuer"],
+      audience: jwtSettings["Audience"],
+      claims: claims,
+      expires: DateTime.UtcNow.AddMinutes(expirationMinutes),
+      signingCredentials: credentials
+    );
+  
+    return new JwtSecurityTokenHandler().WriteToken(token);
+  }
+}

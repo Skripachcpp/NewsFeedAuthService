@@ -13,6 +13,7 @@ builder.Services.AddScoped<DpContext>(_ => new DpContext(connectionString));
 // bd ^
 
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+builder.Services.AddScoped<IJwtToken, JwtToken>();
 
 // Add services to the container.
 builder.Services.AddControllers();
