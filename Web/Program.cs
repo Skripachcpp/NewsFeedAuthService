@@ -12,7 +12,7 @@ builder.Services.AddDbContext<EfContext>(options => options.UseNpgsql(connection
 builder.Services.AddScoped<DpContext>(_ => new DpContext(connectionString));
 // bd ^
 
-builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IJwtToken, JwtToken>();
 
 // Add services to the container.

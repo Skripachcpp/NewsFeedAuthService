@@ -27,6 +27,18 @@ public class DpContext(string connectionString) {
     return result;
   }
   
+  public async Task<T> QuerySingleAsync<T>(string sql, CancellationToken cancellationToken = default, object? parameters = default) {
+    using var connection = OpenConnection();
+
+    var result = await connection.QuerySingleAsync<T>(new CommandDefinition(
+      sql,
+      parameters: parameters,
+      cancellationToken: cancellationToken
+    ));
+
+    return result;
+  }
+  
   public async Task<T?> QueryFirstOrDefaultAsync<T>(string sql, CancellationToken cancellationToken = default, object? parameters = default) {
     using var connection = OpenConnection();
 

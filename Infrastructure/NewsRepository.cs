@@ -7,25 +7,29 @@ using Infrastructure.Data;
 
 namespace Infrastructure;
 
-public class AuthRepository(DpContext dpContext) : IAuthRepository {
-  public Task<int> AddUser(UserAddDto param, CancellationToken cancellationToken = default) {
-    var passwordHash = BCrypt.Net.BCrypt.HashPassword(param.Password);
+public class UserRepository(DpContext dpContext) : IUserRepository {
+  public async Task<int> AddUserAsync(string name, string email, string password, CancellationToken cancellationToken = default) {
+    var createdAt = DateTime.Now;
+    var passwordHash = BCrypt.Net.BCrypt.HashPassword(password);
 
-    var user = new User {
-      Email = param.Email,
-      Username = param.Username,
-      CreatedAt = DateTime.Now,
-      PasswordHash = passwordHash,
-    };
-    
-    throw new NotImplementedException();
+    // language=PostgreSQL
+    var id = await dpContext.QuerySingleAsync<int>(
+      @"
+        INSERT INTO users (user_name, email, password_hash, created_at) 
+        VALUES (@Name, @Email, @PasswordHash, @CreatedAt)
+        RETURNING id;",
+      parameters: new {Name = name, Email = email, PasswordHash = passwordHash, CreatedAt = createdAt},
+      cancellationToken: cancellationToken
+    );
+
+    return id;
   }
   
-  public Task CheckUser(CheckUserDto user, CancellationToken cancellationToken = default) {
+  public async Task<bool> CheckLoginAndEmailAsync(string name, string email, CancellationToken cancellationToken = default) {
     throw new NotImplementedException();
   }
 
-  public Task GetUser(int userId, CancellationToken cancellationToken = default) {
+  public async Task<UserDto?> GetUserAsync(string name, string password, CancellationToken cancellationToken = default) {
     throw new NotImplementedException();
   }
 }

@@ -1,5 +1,4 @@
 using Domain;
-using Domain.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Web.Application;
 using Web.Entity;
@@ -8,30 +7,41 @@ namespace Web.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class AuthController(IAuthRepository authRepository, IJwtToken jwtToken) : BaseController {
+public class AuthController(IUserRepository userRepository, IJwtToken jwtToken) : BaseController {
   [HttpPost("register")]
   public async Task<ActionResult<string>> Register([FromBody] RegisterRequest request, CancellationToken cancellationToken = default) {
     var email = request.Email;
     var name = request.Username;
     var password = request.Password;
     
-    var userExists = await authRepository.CheckLoginAndEmail(name, email, cancellationToken);
+    var userExists = await userRepository.CheckLoginAndEmailAsync(name, email, cancellationToken);
     if (userExists) return BadRequest("Пользователь с таким логином или email уже существует");
 
-    var id = await authRepository.AddUser(name, email, password, cancellationToken);
+    var id = await userRepository.AddUserAsync(name, email, password, cancellationToken);
     var token = jwtToken.Generate(id, name, email);
     
     return OkResult(token);
   }
   
   [HttpPost("login")]
-  public async Task<ActionResult<string>> Login(LoginRequest request, CancellationToken cancellationToken = default) {
-    // await authRepository.GetUser(user, cancellationToken);
-    return Ok();
+  public async Task<ActionResult<string>> Login([FromBody] LoginRequest request, CancellationToken cancellationToken = default) {
+    var name = request.Username;
+    var password = request.Password;
+
+    var user = await userRepository.GetUserAsync(name, password, cancellationToken);
+    if (user == null) return BadRequest("Пользователь с таким логином и паролем не найден");
+    
+    var email = user.Email;
+    var id = user.Id;
+    
+    var token = jwtToken.Generate(id, name, email);
+    
+    return OkResult(token);
   }
   
   [HttpPost("validate")]
-  public async Task<ActionResult> ValidateToken([FromBody] string token, CancellationToken cancellationToken = default) {
-    return Ok();
+  public async Task<ActionResult<bool>> ValidateToken([FromBody] string token, CancellationToken cancellationToken = default) {
+    var valid = jwtToken.Validate(token);
+    return OkResult(valid);
   }
 }
