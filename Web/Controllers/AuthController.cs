@@ -40,7 +40,7 @@ public class AuthController(IUserRepository userRepository, IJwtToken jwtToken) 
   }
   
   [HttpPost("validate")]
-  public async Task<ActionResult<bool>> ValidateToken([FromBody] string token, CancellationToken cancellationToken = default) {
+  public ActionResult<bool> ValidateToken([FromBody] string token, CancellationToken cancellationToken = default) {
     var valid = jwtToken.Validate(token);
     return OkResult(valid);
   }
