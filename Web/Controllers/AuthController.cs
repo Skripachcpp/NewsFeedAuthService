@@ -11,7 +11,7 @@ public class AuthController(IUserRepository userRepository, IJwtToken jwtToken) 
   [HttpPost("register")]
   public async Task<ActionResult<string>> Register([FromBody] RegisterRequest request, CancellationToken cancellationToken = default) {
     var email = request.Email;
-    var name = request.Username;
+    var name = request.Name;
     var password = request.Password;
     
     var userExists = await userRepository.CheckLoginAndEmailAsync(name, email, cancellationToken);

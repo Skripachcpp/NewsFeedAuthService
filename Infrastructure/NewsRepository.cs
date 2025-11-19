@@ -26,7 +26,14 @@ public class UserRepository(DpContext dpContext) : IUserRepository {
   }
   
   public async Task<bool> CheckLoginAndEmailAsync(string name, string email, CancellationToken cancellationToken = default) {
-    throw new NotImplementedException();
+    // language=PostgreSQL
+    var id = await dpContext.QueryFirstOrDefaultAsync<int?>(
+      @"SELECT id FROM users WHERE email = @Email and user_name = @Name",
+      parameters: new {Email = name, Name = name},
+      cancellationToken: cancellationToken
+    );
+
+    return id != null;
   }
 
   public async Task<UserDto?> GetUserAsync(string name, string password, CancellationToken cancellationToken = default) {
