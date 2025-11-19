@@ -39,7 +39,7 @@ using (var scope = app.Services.CreateScope()) {
   
   try {
     logger.LogInformation("Применение миграций базы данных");
-    await context.Database.MigrateAsync();
+    context.Database.Migrate();
     logger.LogInformation("Миграции успешно применены.");
   }
   catch (Exception ex) {
