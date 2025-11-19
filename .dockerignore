@@ -60,8 +60,6 @@ READMY.md
 **/.env
 **/.env.*
 
-# Migrations (if not needed in runtime)
-**/Migrations/
 
 
 
