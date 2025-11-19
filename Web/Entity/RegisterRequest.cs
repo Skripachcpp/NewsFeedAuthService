@@ -5,11 +5,10 @@ namespace Web.Entity;
 
 public record RegisterRequest
 {
-  [Required(ErrorMessage = "имя пользователя обязательно")]
-  [StringLength(100, MinimumLength = 1, ErrorMessage = "Заголовок должен быть от 1 до 500 символов")]
+  [Validate(Required = true, Min = 1, Max = 100)]
   public required string Name { get; init; } 
-  [Required(ErrorMessage = "email обязателен")]
+  [Validate(Required = true, Min = 1, Max = 254)]
   public required string Email { get; init; }
-  [Required(ErrorMessage = "пароль обязателен")]
+  [Validate(Required = true)]
   public required string Password { get; init; }
 }
