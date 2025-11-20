@@ -5,9 +5,8 @@ namespace Web.Entity;
 
 public record LoginRequest
 {
-  [Required(ErrorMessage = "имя пользователя обязательно")]
-  [StringLength(100, MinimumLength = 1, ErrorMessage = "Заголовок должен быть от 1 до 500 символов")]
+  [Validate(Required = true)]
   public required string Username { get; init; } 
-  [Required(ErrorMessage = "пароль обязателен")]
+  [Validate(Required = true)]
   public required string Password { get; init; }
 }
