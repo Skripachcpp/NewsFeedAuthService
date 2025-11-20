@@ -15,7 +15,7 @@ public class AuthController(IUserRepository userRepository, IJwtToken jwtToken) 
     var password = request.Password;
     
     var userExists = await userRepository.CheckLoginAndEmailAsync(name, email, cancellationToken);
-    if (userExists) return BadRequest("Пользователь с таким логином или email уже существует");
+    if (userExists) return BadRequest("пользователь с таким именем или email уже существует");
 
     var id = await userRepository.AddUserAsync(name, email, password, cancellationToken);
     var token = jwtToken.Generate(id, name, email);
@@ -29,7 +29,7 @@ public class AuthController(IUserRepository userRepository, IJwtToken jwtToken) 
     var password = request.Password;
 
     var user = await userRepository.GetUserAsync(name, password, cancellationToken);
-    if (user == null) return BadRequest("Пользователь с таким логином и паролем не найден");
+    if (user == null) return BadRequest("пользователь с таким именем и паролем не найден");
     
     var email = user.Email;
     var id = user.Id;

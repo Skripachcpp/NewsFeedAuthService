@@ -30,6 +30,11 @@ builder.Services.AddOpenApiDocument(); // swagger
 
 builder.Services.AddOpenApi();
 
+builder.Services.Configure<RouteOptions>(options => {
+  options.LowercaseUrls = true;
+  options.LowercaseQueryStrings = true;
+});
+
 var app = builder.Build();
 
 // автозапуск миграций
@@ -46,6 +51,10 @@ using (var scope = app.Services.CreateScope()) {
     logger.LogError(ex, "Ошибка при применении миграций");
     throw;
   }
+}
+
+if (app.Environment.IsDevelopment()) {
+  app.Urls.Add("http://localhost:5164");
 }
 
 // свагер пусть будет и в продакшене
