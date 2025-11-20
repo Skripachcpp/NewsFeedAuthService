@@ -10,7 +10,7 @@ namespace Infrastructure;
 public class UserRepository(DpContext dpContext) : IUserRepository {
   public async Task<int> AddUserAsync(string name, string email, string password,
     CancellationToken cancellationToken = default) {
-    var createdAt = DateTime.Now;
+    var createdAt = DateTime.UtcNow;
     var passwordHash = BCrypt.Net.BCrypt.HashPassword(password);
 
     // language=PostgreSQL
@@ -31,7 +31,7 @@ public class UserRepository(DpContext dpContext) : IUserRepository {
     CancellationToken cancellationToken = default) {
     // language=PostgreSQL
     var id = await dpContext.QueryFirstOrDefaultAsync<int?>(
-      @"SELECT id FROM user_accounts WHERE email = @Email and user_name = @Name",
+      @"SELECT id FROM user_accounts WHERE email = @Email or user_name = @Name",
       parameters: new { Email = email, Name = name },
       cancellationToken: cancellationToken
     );
