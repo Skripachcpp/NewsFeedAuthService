@@ -3,7 +3,7 @@ using Web.Application;
 
 namespace Web.Entity;
 
-public record RegisterRequest
+public sealed record RegisterRequest
 {
   [Validate(Required = true, Min = 1, Max = 100)]
   public required string Name { get; init; } 
