@@ -1,5 +1,3 @@
-using System.Data;
-using Dapper;
 using Domain;
 using Domain.DTOs;
 using Domain.Entities;
