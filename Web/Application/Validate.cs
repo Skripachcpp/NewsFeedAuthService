@@ -7,9 +7,7 @@ public class Validate() : ValidationAttribute {
   public int Min { get; set; } = -1;
   public bool Required { get; set; } = false;
 
-  private string? Message => ErrorMessage != null 
-      ? ErrorMessage.Replace("{min}", Min.ToString()).Replace("{max}", Max.ToString())
-      : $"должно содержать {(Min != -1 ? $"от {Min} " : string.Empty)}{(Max != -1 ? $"до {Max} " : string.Empty)}символ(ов)";
+  private string? Message => ErrorMessage ?? $"должно содержать {(Min != -1 ? $"от {Min} " : string.Empty)}{(Max != -1 ? $"до {Max} " : string.Empty)}символ(ов)";
   
   protected override ValidationResult? IsValid(object? value, ValidationContext validationContext) {
     if (Required && value == null) return new ValidationResult("обязательно");
