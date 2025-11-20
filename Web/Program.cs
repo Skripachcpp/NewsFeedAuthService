@@ -3,6 +3,7 @@ using Infrastructure;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
+using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,6 +43,9 @@ builder.Services.AddHealthChecks()
 
 var app = builder.Build();
 
+// метрики
+app.MapMetrics("/metrics");
+
 // отчитываемся о том что живы здоровы
 app.MapHealthChecks("/health");
 app.MapHealthChecks("/health/ready", new HealthCheckOptions {
@@ -78,6 +82,9 @@ app.UseSwaggerUi();
 app.UseCors();
 
 app.UseHttpsRedirection();
+
+// Prometheus HTTP метрики
+app.UseHttpMetrics();
 
 app.UseAuthorization();
 
