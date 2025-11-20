@@ -1,6 +1,7 @@
 using Domain;
 using Infrastructure;
 using Infrastructure.Data;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -35,7 +36,20 @@ builder.Services.Configure<RouteOptions>(options => {
   options.LowercaseQueryStrings = true;
 });
 
+// мониторим доступность баз данных
+builder.Services.AddHealthChecks()
+  .AddNpgSql(connectionString, name: "postgres");
+
 var app = builder.Build();
+
+// отчитываемся о том что живы здоровы
+app.MapHealthChecks("/health");
+app.MapHealthChecks("/health/ready", new HealthCheckOptions {
+  Predicate = check => check.Tags.Contains("ready")
+});
+app.MapHealthChecks("/health/live", new HealthCheckOptions {
+  Predicate = _ => false  // только проверка что приложение запущено
+});
 
 // автозапуск миграций
 using (var scope = app.Services.CreateScope()) {
