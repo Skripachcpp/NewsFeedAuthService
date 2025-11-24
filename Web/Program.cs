@@ -13,13 +13,14 @@ if (connectionString == null) throw new Exception("Отсутствует connec
 builder.Services.AddDbContext<EfContext>(options => options.UseNpgsql(connectionString));
 builder.Services.AddScoped<DpContext>(_ => new DpContext(connectionString));
 // bd ^
-
-builder.Services.AddCors(options => {
-  options.AddDefaultPolicy(policy => {
-    policy.AllowAnyOrigin()
-      .AllowAnyMethod()
-      .AllowAnyHeader();
-  });
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+          .AllowAnyMethod()
+          .AllowAnyHeader();
+    });
 });
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -28,13 +29,18 @@ builder.Services.AddScoped<IJwtToken, JwtToken>();
 // Add services to the container.
 builder.Services.AddControllers();
 
-builder.Services.AddOpenApiDocument(); // swagger
+builder.Services.AddOpenApiDocument(settings =>
+{
+    settings.Title = "NewsFeedAuthService API";
+    settings.Description = "API для работы с авторизацией";
+}); // swagger
 
 builder.Services.AddOpenApi();
 
-builder.Services.Configure<RouteOptions>(options => {
-  options.LowercaseUrls = true;
-  options.LowercaseQueryStrings = true;
+builder.Services.Configure<RouteOptions>(options =>
+{
+    options.LowercaseUrls = true;
+    options.LowercaseQueryStrings = true;
 });
 
 // мониторим доступность баз данных
@@ -48,31 +54,37 @@ app.MapMetrics("/metrics");
 
 // отчитываемся о том что живы здоровы
 app.MapHealthChecks("/health");
-app.MapHealthChecks("/health/ready", new HealthCheckOptions {
-  Predicate = check => check.Tags.Contains("ready")
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready"),
 });
-app.MapHealthChecks("/health/live", new HealthCheckOptions {
-  Predicate = _ => false  // только проверка что приложение запущено
+app.MapHealthChecks("/health/live", new HealthCheckOptions
+{
+    Predicate = _ => false,  // только проверка что приложение запущено
 });
 
 // автозапуск миграций
-using (var scope = app.Services.CreateScope()) {
-  var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-  var context = scope.ServiceProvider.GetRequiredService<EfContext>();
-  
-  try {
-    logger.LogInformation("Применение миграций базы данных");
-    context.Database.Migrate();
-    logger.LogInformation("Миграции успешно применены.");
-  }
-  catch (Exception ex) {
-    logger.LogError(ex, "Ошибка при применении миграций");
-    throw;
-  }
+using (var scope = app.Services.CreateScope())
+{
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    var context = scope.ServiceProvider.GetRequiredService<EfContext>();
+
+    try
+    {
+        logger.LogInformation("Применение миграций базы данных");
+        context.Database.Migrate();
+        logger.LogInformation("Миграции успешно применены.");
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Ошибка при применении миграций");
+        throw;
+    }
 }
 
-if (app.Environment.IsDevelopment()) {
-  app.Urls.Add("http://localhost:5164");
+if (app.Environment.IsDevelopment())
+{
+    app.Urls.Add("http://localhost:5164");
 }
 
 // свагер пусть будет и в продакшене
