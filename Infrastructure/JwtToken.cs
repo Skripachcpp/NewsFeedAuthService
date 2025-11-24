@@ -1,7 +1,9 @@
+using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Domain;
+using Infrastructure.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
@@ -13,11 +15,11 @@ public class JwtToken(IConfiguration configuration): IJwtToken
     {
         var jwtSettings = configuration.GetSection("JwtSettings");
         var secretKey = jwtSettings["SecretKey"] !;
-        var expirationMinutes = int.Parse(jwtSettings["ExpirationMinutes"] ?? "60");
+        var expirationMinutes = jwtSettings["ExpirationMinutes"].TryPrs(60);
 
         var claims = new[]
         {
-            new Claim(ClaimTypes.NameIdentifier, id.ToString()),
+            new Claim(ClaimTypes.NameIdentifier, id.ToStr()),
             new Claim(ClaimTypes.Name, name),
             new Claim(ClaimTypes.Email, email),
         };
@@ -45,17 +47,20 @@ public class JwtToken(IConfiguration configuration): IJwtToken
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(secretKey);
 
-            tokenHandler.ValidateToken(token, new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(key),
-                ValidateIssuer = true,
-                ValidIssuer = jwtSettings["Issuer"],
-                ValidateAudience = true,
-                ValidAudience = jwtSettings["Audience"],
-                ValidateLifetime = true,
-                ClockSkew = TimeSpan.Zero,
-            }, out SecurityToken validatedToken);
+            tokenHandler.ValidateToken(
+                token,
+                new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = true,
+                    ValidIssuer = jwtSettings["Issuer"],
+                    ValidateAudience = true,
+                    ValidAudience = jwtSettings["Audience"],
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero,
+                },
+                out SecurityToken validatedToken);
 
             return true;
         }

@@ -8,7 +8,7 @@ public sealed class Validate(): ValidationAttribute
     public int Max { get; set; } = int.MinValue;
     public int MaxBytes { get; set; } = int.MinValue;
     public int Min { get; set; } = int.MinValue;
-    public bool Required { get; set; } = false;
+    public bool Required { get; set; }
 
     private string? MessageString => this.ErrorMessage ?? $"{(this.Required ? "обязательно, " : string.Empty)}должно содержать {(this.Min != int.MinValue ? $"от {this.Min} " : string.Empty)}{(this.Max != int.MinValue ? $"до {this.Max} " : string.Empty)}символ(ов)";
 
@@ -39,7 +39,7 @@ public sealed class Validate(): ValidationAttribute
             if (this.Max != int.MinValue && textArray.Any(it => it.Length > this.Max)) return new ValidationResult(this.MessageString);
 
             // в массиве должно что то быть иначе какой он обязательный
-            if (this.Required && !textArray.Any()) return new ValidationResult(this.MessageString);
+            if (this.Required && textArray.Length != 0) return new ValidationResult(this.MessageString);
 
             return ValidationResult.Success;
         }

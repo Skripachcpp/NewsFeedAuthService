@@ -7,7 +7,7 @@ namespace Infrastructure.Data;
 public class DpContext(string connectionString)
 {
     private readonly string connectionString =
-      connectionString ?? throw new ArgumentNullException(nameof(connectionString));
+        connectionString ?? throw new ArgumentNullException(nameof(connectionString));
 
     public IDbConnection OpenConnection()
     {
@@ -22,9 +22,9 @@ public class DpContext(string connectionString)
         using var connection = this.OpenConnection();
 
         var result = await connection.ExecuteAsync(new CommandDefinition(
-          sql,
-          parameters: parameters,
-          cancellationToken: cancellationToken));
+            sql,
+            parameters: parameters,
+            cancellationToken: cancellationToken));
 
         return result;
     }
@@ -34,9 +34,9 @@ public class DpContext(string connectionString)
         using var connection = this.OpenConnection();
 
         var result = await connection.QueryAsync<T>(new CommandDefinition(
-          sql,
-          parameters: parameters,
-          cancellationToken: cancellationToken));
+            sql,
+            parameters: parameters,
+            cancellationToken: cancellationToken));
 
         return result;
     }
@@ -46,9 +46,9 @@ public class DpContext(string connectionString)
         using var connection = this.OpenConnection();
 
         var result = await connection.QuerySingleAsync<T>(new CommandDefinition(
-          sql,
-          parameters: parameters,
-          cancellationToken: cancellationToken));
+            sql,
+            parameters: parameters,
+            cancellationToken: cancellationToken));
 
         return result;
     }
@@ -58,9 +58,9 @@ public class DpContext(string connectionString)
         using var connection = this.OpenConnection();
 
         var result = await connection.QueryFirstOrDefaultAsync<T>(new CommandDefinition(
-          sql,
-          parameters: parameters,
-          cancellationToken: cancellationToken));
+            sql,
+            parameters: parameters,
+            cancellationToken: cancellationToken));
 
         return result;
     }
@@ -87,42 +87,45 @@ public class DpContext(string connectionString)
 
     public async Task<T> QuerySingleWithTransactionAsync<T>(
         string sql,
-      CancellationToken cancellationToken = default, object? parameters = default)
+        CancellationToken cancellationToken = default,
+        object? parameters = default)
     {
         var result = await this.RunInTransaction<T>(async (connection, transaction) => (
-          await connection.QuerySingleAsync<T>(new CommandDefinition(
-            sql,
-            parameters: parameters,
-            transaction: transaction,
-            cancellationToken: cancellationToken))));
+            await connection.QuerySingleAsync<T>(new CommandDefinition(
+                sql,
+                parameters: parameters,
+                transaction: transaction,
+                cancellationToken: cancellationToken))));
 
         return result;
     }
 
     public async Task<T?> QuerySingleOrDefaultWithTransactionAsync<T>(
         string sql,
-      CancellationToken cancellationToken = default, object? parameters = default)
+        CancellationToken cancellationToken = default,
+        object? parameters = default)
     {
         var result = await this.RunInTransaction<T?>(async (connection, transaction) => (
-          await connection.QuerySingleOrDefaultAsync<T>(new CommandDefinition(
-            sql,
-            parameters: parameters,
-            transaction: transaction,
-            cancellationToken: cancellationToken))));
+            await connection.QuerySingleOrDefaultAsync<T>(new CommandDefinition(
+                sql,
+                parameters: parameters,
+                transaction: transaction,
+                cancellationToken: cancellationToken))));
 
         return result;
     }
 
     public async Task<IEnumerable<T>> QueryWithTransactionAsync<T>(
         string sql,
-      CancellationToken cancellationToken = default, object? parameters = default)
+        CancellationToken cancellationToken = default,
+        object? parameters = default)
     {
         var result = await this.RunInTransaction<IEnumerable<T>>(async (connection, transaction) => (
-          await connection.QueryAsync<T>(new CommandDefinition(
-            sql,
-            parameters: parameters,
-            transaction: transaction,
-            cancellationToken: cancellationToken))));
+            await connection.QueryAsync<T>(new CommandDefinition(
+                sql,
+                parameters: parameters,
+                transaction: transaction,
+                cancellationToken: cancellationToken))));
 
         return result;
     }
@@ -130,11 +133,11 @@ public class DpContext(string connectionString)
     public async Task<int> ExecuteWithTransactionAsync(string sql, CancellationToken cancellationToken = default, object? parameters = default)
     {
         var result = await this.RunInTransaction<int>(async (connection, transaction) => (
-          await connection.ExecuteAsync(new CommandDefinition(
-            sql,
-            parameters: parameters,
-            transaction: transaction,
-            cancellationToken: cancellationToken))));
+            await connection.ExecuteAsync(new CommandDefinition(
+                sql,
+                parameters: parameters,
+                transaction: transaction,
+                cancellationToken: cancellationToken))));
 
         return result;
     }

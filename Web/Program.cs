@@ -1,3 +1,4 @@
+using System.Data;
 using Domain;
 using Infrastructure;
 using Infrastructure.Data;
@@ -9,7 +10,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // bd _
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-if (connectionString == null) throw new Exception("Отсутствует connection string");
+if (connectionString == null) throw new ConstraintException("Отсутствует connection string: DefaultConnectio");
+
 builder.Services.AddDbContext<EfContext>(options => options.UseNpgsql(connectionString));
 builder.Services.AddScoped<DpContext>(_ => new DpContext(connectionString));
 // bd ^
